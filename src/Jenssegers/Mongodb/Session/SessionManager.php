@@ -2,10 +2,14 @@
 
 namespace Jenssegers\Mongodb\Session;
 
+use Illuminate\Contracts\Foundation\Application;
+use MongoDB\Laravel\Connection;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\MongoDbSessionHandler;
 
 class SessionManager extends \Illuminate\Support\Manager
 {
+
+    private Application $app;
 
     public function __construct($app)
     {
@@ -14,9 +18,9 @@ class SessionManager extends \Illuminate\Support\Manager
     /**
      * Create an instance of the database session driver.
      *
-     * @return \Illuminate\Session\Store
+     * @return MongoDbSessionHandler
      */
-    protected function createMongoDBDriver()
+    protected function createMongoDBDriver(): MongoDbSessionHandler
     {
         $connection = $this->getMongoDBConnection();
 
@@ -26,7 +30,7 @@ class SessionManager extends \Illuminate\Support\Manager
 
         $handler = new MongoDbSessionHandler($connection->getMongoClient(), $this->getMongoDBOptions($database, $collection));
 
-        $handler->open(null, 'mongodb');
+        $handler->open('', 'mongodb');
 
         return $handler;
     }
@@ -68,7 +72,7 @@ class SessionManager extends \Illuminate\Support\Manager
      *
      * @return array
      */
-    protected function getMongoDBOptions($database, $collection)
+    protected function getMongoDBOptions($database, $collection): array
     {
         return ['database' => $database, 'collection' => $collection, 'id_field' => '_id', 'data_field' => 'payload', 'time_field' => 'last_activity'];
     }
@@ -78,7 +82,7 @@ class SessionManager extends \Illuminate\Support\Manager
      *
      * @return string
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
         return 'mongodb';
     }
